@@ -1,0 +1,95 @@
+(async function() {
+    const cityInput = document.getElementById('cityInput');
+    const weatherDiv = document.getElementById('weatherResult');
+    const historyDiv = document.getElementById('historyButtons');
+
+    const getCoords = async city => {
+        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=ru&format=json`);
+        const data = await res.json();
+        return data.results?.[0] ? { lat: data.results[0].latitude, lon: data.results[0].longitude, name: data.results[0].name, country: data.results[0].country } : null;
+    };
+
+    const getWeather = async (lat, lon) => {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,windspeed_10m&timezone=auto`);
+        return await res.json();
+    };
+
+    const getDesc = code => ({0:'☀️ Ясно',1:'🌤️ Ясно',2:'⛅ Облачно',3:'☁️ Пасмурно',45:'🌫️ Туман',61:'🌧️ Дождь',71:'❄️ Снег',80:'⛈️ Ливень',95:'⛈️ Гроза'}[code] || '🌡️ Облачно');
+
+    const saveHistory = city => {
+        let h = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
+        h = h.filter(c => c.toLowerCase() !== city.toLowerCase());
+        h.unshift(city);
+        if (h.length > 5) h.pop();
+        localStorage.setItem('weatherHistory', JSON.stringify(h));
+        updateHistory();
+    };
+
+    const updateHistory = () => {
+        const h = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
+        historyDiv.innerHTML = h.map(city => `<button class="history-btn" onclick="window.searchCity('${city}')">${city}</button>`).join('');
+    };
+
+    window.searchCity = city => { cityInput.value = city; loadWeather(city); };
+
+    const loadWeather = async city => {
+        if (!city.trim()) return;
+        weatherDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>Поиск...</div></div>';
+        try {
+            const coords = await getCoords(city);
+            if (!coords) { weatherDiv.innerHTML = `<div class="error">❌ Город "${city}" не найден</div>`; return; }
+            const data = await getWeather(coords.lat, coords.lon);
+            const now = new Date();
+            const temp = Math.round(data.current_weather.temperature);
+            const wind = data.current_weather.windspeed;
+            const desc = getDesc(data.current_weather.weathercode);
+            const humidity = data.hourly?.relative_humidity_2m?.[now.getHours()] + '%' || '—';
+            const dateStr = now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+            const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            weatherDiv.innerHTML = `
+                <div class="city-name">${coords.name}, ${coords.country}</div>
+                <div class="date">📅 ${dateStr} | 🕐 ${timeStr}</div>
+                <div class="temp">${temp}°<span>C</span></div>
+                <div class="weather-desc">${desc}</div>
+                <div class="details">
+                    <div class="detail"><div class="detail-label">💧 Влажность</div><div class="detail-value">${humidity}</div></div>
+                    <div class="detail"><div class="detail-label">💨 Ветер</div><div class="detail-value">${wind} км/ч</div></div>
+                </div>
+            `;
+            saveHistory(coords.name);
+        } catch(e) { weatherDiv.innerHTML = '<div class="error">❌ Ошибка соединения</div>'; }
+    };
+
+    const getLocation = () => {
+        if (!navigator.geolocation) return alert('Геолокация не поддерживается');
+        weatherDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>📍 Определение...</div></div>';
+        navigator.geolocation.getCurrentPosition(async pos => {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&accept-language=ru`);
+                const data = await res.json();
+                const city = data.address?.city || data.address?.town || data.address?.village;
+                if (city) { cityInput.value = city; loadWeather(city); }
+                else weatherDiv.innerHTML = '<div class="error">❌ Город не определён</div>';
+            } catch(e) { weatherDiv.innerHTML = '<div class="error">❌ Ошибка определения города</div>'; }
+        }, () => weatherDiv.innerHTML = '<div class="error">❌ Доступ запрещён</div>');
+    };
+
+    const startVoice = () => {
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!Speech) return alert('Голосовой поиск не поддерживается');
+        const rec = new Speech();
+        rec.lang = 'ru-RU';
+        weatherDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>🎤 Скажите город...</div></div>';
+        rec.start();
+        rec.onresult = e => { const city = e.results[0][0].transcript; cityInput.value = city; loadWeather(city); };
+        rec.onerror = () => weatherDiv.innerHTML = '<div class="error">❌ Не распознано</div>';
+    };
+
+    document.getElementById('searchBtn').onclick = () => loadWeather(cityInput.value.trim());
+    cityInput.onkeypress = e => { if (e.key === 'Enter') loadWeather(cityInput.value.trim()); };
+    document.getElementById('micBtn').onclick = startVoice;
+    document.getElementById('locationBtn').onclick = getLocation;
+
+    updateHistory();
+    loadWeather("Москва");
+})();

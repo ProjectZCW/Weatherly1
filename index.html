@@ -6,37 +6,36 @@
     <title>Weatherly</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
-        .container{max-width:1200px;width:100%;background:#111;border-radius:28px;padding:35px 40px;border:1px solid #2a2a2a}
-        h1{text-align:center;color:#fff;margin-bottom:30px;font-size:2.2rem}
-        .search-box{display:flex;gap:12px;margin-bottom:15px;flex-wrap:wrap}
-        #cityInput{flex:1;padding:14px 20px;border:1px solid #333;border-radius:30px;background:#1a1a1a;color:#fff;outline:none}
+        body{background:#0a0a0a;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+        .container{max-width:1000px;width:100%;background:#111;border-radius:28px;padding:30px;border:1px solid #2a2a2a}
+        h1{text-align:center;color:#fff;margin-bottom:25px;font-size:2rem}
+        .search-box{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+        #cityInput{flex:1;padding:14px 20px;border:1px solid #333;border-radius:40px;background:#1a1a1a;color:#fff;font-size:1rem;outline:none;min-width:150px}
         #cityInput:focus{border-color:#666}
         #cityInput::placeholder{color:#555}
-        .btn{background:#222;border:1px solid #333;padding:12px 24px;border-radius:30px;color:#fff;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px}
-        .btn:hover{background:#333;border-color:#555;transform:translateY(-1px)}
-        .extra-buttons{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-        .extra-buttons .btn{background:#1a1a1a}
-        .history-label{font-size:.7rem;color:#666;margin-bottom:8px}
-        .history-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:25px}
-        .history-btn{background:#1a1a1a;border:1px solid #2a2a2a;padding:6px 14px;border-radius:30px;font-size:.7rem;color:#aaa;cursor:pointer}
-        .history-btn:hover{background:#252525;color:#fff}
-        .weather-card{background:#1a1a1a;border-radius:28px;padding:30px;text-align:center;border:1px solid #2a2a2a}
-        .city-name{font-size:2rem;font-weight:600;color:#fff;margin-bottom:8px}
+        button{background:#222;border:1px solid #333;padding:12px 24px;border-radius:40px;color:#fff;font-size:1rem;cursor:pointer;transition:.2s}
+        button:hover{background:#333}
+        .row{display:flex;gap:12px;margin-bottom:25px;flex-wrap:wrap}
+        .row button{flex:1;background:#1a1a1a}
+        .history-label{font-size:.75rem;color:#666;margin-bottom:8px}
+        .history{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px}
+        .history button{background:#1a1a1a;border:1px solid #2a2a2a;padding:6px 14px;border-radius:20px;font-size:.75rem}
+        .weather-card{background:#1a1a1a;border-radius:24px;padding:35px;text-align:center;border:1px solid #2a2a2a}
+        .city{font-size:2rem;font-weight:600;color:#fff;margin-bottom:8px}
         .date{font-size:.85rem;color:#888;margin-bottom:20px}
         .temp{font-size:5rem;font-weight:700;color:#fff;margin:20px 0}
         .temp span{font-size:1.8rem;font-weight:400;color:#888}
-        .weather-desc{font-size:1.2rem;color:#ccc;margin-bottom:25px;display:flex;align-items:center;justify-content:center;gap:10px}
-        .details{display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
-        .detail{background:#0d0d0d;padding:15px 25px;border-radius:20px;min-width:120px;border:1px solid #252525}
-        .detail-label{font-size:.7rem;color:#666;text-transform:uppercase}
-        .detail-value{font-size:1.1rem;font-weight:600;color:#fff;margin-top:5px}
-        .loading{text-align:center;padding:50px;color:#888}
+        .desc{font-size:1.2rem;color:#ccc;margin-bottom:25px}
+        .flex{display:flex;justify-content:center;gap:25px;flex-wrap:wrap}
+        .detail{background:#0d0d0d;padding:15px 25px;border-radius:20px;border:1px solid #252525}
+        .detail-label{font-size:.8rem;color:#666;margin-bottom:5px}
+        .detail-value{font-size:1.1rem;font-weight:600;color:#fff}
+        .loading,.error{text-align:center;padding:50px;color:#888}
+        .error{color:#ff6b6b}
         .spinner{width:45px;height:45px;border:3px solid #2a2a2a;border-top-color:#666;border-radius:50%;margin:0 auto 15px;animation:spin .8s linear infinite}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .error{text-align:center;padding:40px;color:#ff6b6b}
         footer{text-align:center;margin-top:30px;font-size:.7rem;color:#444;border-top:1px solid #1a1a1a;padding-top:20px}
-        @media (max-width:700px){.container{padding:20px}h1{font-size:1.6rem}.temp{font-size:3.5rem}.temp span{font-size:1.2rem}.detail{padding:10px 15px;min-width:100px}.btn{padding:10px 16px;font-size:.85rem}}
+        @media (max-width:700px){.container{padding:20px}.city{font-size:1.5rem}.temp{font-size:3.2rem}.temp span{font-size:1.2rem}.desc{font-size:1rem}.detail{padding:10px 15px}.detail-value{font-size:1rem}.search-box button{padding:12px 18px}}
     </style>
 </head>
 <body>
@@ -44,120 +43,102 @@
     <h1>⛅ Weatherly</h1>
 
     <div class="search-box">
-        <input type="text" id="cityInput" placeholder="Введите город" value="Москва">
-        <button class="btn" id="searchBtn">🔍 Найти</button>
-    </div>
-    <div class="extra-buttons">
-        <button class="btn" id="micBtn">🎤 Голосовой поиск</button>
-        <button class="btn" id="locationBtn">📍 Моё местоположение</button>
+        <input type="text" id="cityInput" placeholder="Москва, Лондон, Париж..." value="Москва">
+        <button id="searchBtn">🔍 Найти</button>
     </div>
 
-    <div class="history-label">📜 Недавние запросы</div>
-    <div class="history-buttons" id="historyButtons"></div>
-
-    <div id="weatherResult" class="weather-card">
-        <div class="loading"><div class="spinner"></div><div>Загрузка погоды...</div></div>
+    <div class="row">
+        <button id="voiceBtn">🎤 Голосовой поиск</button>
+        <button id="geoBtn">📍 Моё местоположение</button>
     </div>
 
-    <footer><p>🌙 Weatherly | OpenMeteo</p></footer>
+    <div class="history-label">📜 Недавние</div>
+    <div class="history" id="historyDiv"></div>
+
+    <div id="weatherCard" class="weather-card">
+        <div class="loading"><div class="spinner"></div><div>Загрузка...</div></div>
+    </div>
+    <footer>☁️ Weatherly | OpenMeteo</footer>
 </div>
 
 <script>
-(async function() {
     const cityInput = document.getElementById('cityInput');
-    const weatherDiv = document.getElementById('weatherResult');
-    const historyDiv = document.getElementById('historyButtons');
-
-    const getCoords = async city => {
-        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=ru&format=json`);
-        const data = await res.json();
-        return data.results?.[0] ? { lat: data.results[0].latitude, lon: data.results[0].longitude, name: data.results[0].name, country: data.results[0].country } : null;
-    };
-
-    const getWeather = async (lat, lon) => {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,windspeed_10m&timezone=auto`);
-        return await res.json();
-    };
+    const weatherCard = document.getElementById('weatherCard');
+    const historyDiv = document.getElementById('historyDiv');
 
     const getDesc = code => ({0:'☀️ Ясно',1:'🌤️ Ясно',2:'⛅ Облачно',3:'☁️ Пасмурно',45:'🌫️ Туман',61:'🌧️ Дождь',71:'❄️ Снег',80:'⛈️ Ливень',95:'⛈️ Гроза'}[code] || '🌡️ Облачно');
 
-    const saveHistory = city => {
+    const saveToHistory = city => {
         let h = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
         h = h.filter(c => c.toLowerCase() !== city.toLowerCase());
         h.unshift(city);
         if (h.length > 5) h.pop();
         localStorage.setItem('weatherHistory', JSON.stringify(h));
-        updateHistory();
+        historyDiv.innerHTML = h.map(c => `<button onclick="loadCity('${c}')">${c}</button>`).join('');
     };
 
-    const updateHistory = () => {
-        const h = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
-        historyDiv.innerHTML = h.map(city => `<button class="history-btn" onclick="window.searchCity('${city}')">${city}</button>`).join('');
-    };
-
-    window.searchCity = city => { cityInput.value = city; loadWeather(city); };
-
-    const loadWeather = async city => {
+    window.loadCity = async city => {
         if (!city.trim()) return;
-        weatherDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>Поиск...</div></div>';
+        weatherCard.innerHTML = '<div class="loading"><div class="spinner"></div><div>Поиск...</div></div>';
         try {
-            const coords = await getCoords(city);
-            if (!coords) { weatherDiv.innerHTML = `<div class="error">❌ Город "${city}" не найден</div>`; return; }
-            const data = await getWeather(coords.lat, coords.lon);
-            const now = new Date();
-            const temp = Math.round(data.current_weather.temperature);
-            const wind = data.current_weather.windspeed;
-            const desc = getDesc(data.current_weather.weathercode);
-            const humidity = data.hourly?.relative_humidity_2m?.[now.getHours()] + '%' || '—';
-            const dateStr = now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
-            const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            weatherDiv.innerHTML = `
-                <div class="city-name">${coords.name}, ${coords.country}</div>
+            const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=ru&format=json`);
+            const geoData = await geoRes.json();
+            if (!geoData.results?.[0]) throw new Error();
+            const { latitude, longitude, name, country } = geoData.results[0];
+            const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,windspeed_10m&timezone=auto`);
+            const weatherData = await weatherRes.json();
+            const temp = Math.round(weatherData.current_weather.temperature);
+            const wind = weatherData.current_weather.windspeed;
+            const desc = getDesc(weatherData.current_weather.weathercode);
+            const hour = new Date().getHours();
+            const humidity = weatherData.hourly?.relative_humidity_2m?.[hour] + '%' || '—';
+            const dateStr = new Date().toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+            const timeStr = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            weatherCard.innerHTML = `
+                <div class="city">${name}, ${country}</div>
                 <div class="date">📅 ${dateStr} | 🕐 ${timeStr}</div>
                 <div class="temp">${temp}°<span>C</span></div>
-                <div class="weather-desc">${desc}</div>
-                <div class="details">
+                <div class="desc">${desc}</div>
+                <div class="flex">
                     <div class="detail"><div class="detail-label">💧 Влажность</div><div class="detail-value">${humidity}</div></div>
                     <div class="detail"><div class="detail-label">💨 Ветер</div><div class="detail-value">${wind} км/ч</div></div>
                 </div>
             `;
-            saveHistory(coords.name);
-        } catch(e) { weatherDiv.innerHTML = '<div class="error">❌ Ошибка соединения</div>'; }
+            saveToHistory(name);
+        } catch(e) { weatherCard.innerHTML = '<div class="error">❌ Город не найден</div>'; }
     };
 
-    const getLocation = () => {
+    document.getElementById('searchBtn').onclick = () => window.loadCity(cityInput.value.trim());
+    cityInput.onkeypress = e => { if (e.key === 'Enter') window.loadCity(cityInput.value.trim()); };
+
+    document.getElementById('voiceBtn').onclick = () => {
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!Speech) return alert('Голос не поддерживается');
+        const rec = new Speech();
+        rec.lang = 'ru-RU';
+        weatherCard.innerHTML = '<div class="loading"><div class="spinner"></div><div>🎤 Скажите город...</div></div>';
+        rec.start();
+        rec.onresult = e => { cityInput.value = e.results[0][0].transcript; window.loadCity(cityInput.value); };
+        rec.onerror = () => weatherCard.innerHTML = '<div class="error">❌ Не распознано</div>';
+    };
+
+    document.getElementById('geoBtn').onclick = () => {
         if (!navigator.geolocation) return alert('Геолокация не поддерживается');
-        weatherDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>📍 Определение...</div></div>';
+        weatherCard.innerHTML = '<div class="loading"><div class="spinner"></div><div>📍 Определение...</div></div>';
         navigator.geolocation.getCurrentPosition(async pos => {
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&accept-language=ru`);
                 const data = await res.json();
                 const city = data.address?.city || data.address?.town || data.address?.village;
-                if (city) { cityInput.value = city; loadWeather(city); }
-                else weatherDiv.innerHTML = '<div class="error">❌ Город не определён</div>';
-            } catch(e) { weatherDiv.innerHTML = '<div class="error">❌ Ошибка определения города</div>'; }
-        }, () => weatherDiv.innerHTML = '<div class="error">❌ Доступ запрещён</div>');
+                if (city) { cityInput.value = city; window.loadCity(city); }
+                else weatherCard.innerHTML = '<div class="error">❌ Город не определён</div>';
+            } catch(e) { weatherCard.innerHTML = '<div class="error">❌ Ошибка</div>'; }
+        }, () => weatherCard.innerHTML = '<div class="error">❌ Доступ запрещён</div>');
     };
 
-    const startVoice = () => {
-        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!Speech) return alert('Голосовой поиск не поддерживается');
-        const rec = new Speech();
-        rec.lang = 'ru-RU';
-        weatherDiv.innerHTML = '<div class="loading"><div class="spinner"></div><div>🎤 Скажите город...</div></div>';
-        rec.start();
-        rec.onresult = e => { const city = e.results[0][0].transcript; cityInput.value = city; loadWeather(city); };
-        rec.onerror = () => weatherDiv.innerHTML = '<div class="error">❌ Не распознано</div>';
-    };
-
-    document.getElementById('searchBtn').onclick = () => loadWeather(cityInput.value.trim());
-    cityInput.onkeypress = e => { if (e.key === 'Enter') loadWeather(cityInput.value.trim()); };
-    document.getElementById('micBtn').onclick = startVoice;
-    document.getElementById('locationBtn').onclick = getLocation;
-
-    updateHistory();
-    loadWeather("Москва");
-})();
+    const saved = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
+    historyDiv.innerHTML = saved.map(c => `<button onclick="loadCity('${c}')">${c}</button>`).join('');
+    window.loadCity("Москва");
 </script>
 </body>
 </html>
